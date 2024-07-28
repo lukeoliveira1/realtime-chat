@@ -1,12 +1,18 @@
-const app = require("express");
-const server = require("http").createServer(app);
-const io = require("socket.io")(server, {
+const express = require("express");
+const http = require("http");
+const socketIo = require("socket.io");
+
+const { connectRabbitMQ, sendMessageToQueue } = require("./rabbitmq");
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
   cors: { origin: "http://localhost:5173" },
 });
 
 const PORT = 3001;
 
-// listening to front-end events when a client connects to the server
+// listening to front-end events (socket.io)
 io.on("connection", (socket) => {
   console.log("Usuário conectado!", socket.id);
 
@@ -18,14 +24,21 @@ io.on("connection", (socket) => {
     socket.data.username = username;
   });
 
-  // get message and send it again to the front-end
-  socket.on("message", (text) => {
-    io.emit("receive_message", {
+  socket.on("message", async (text) => {
+    const message = {
       text,
       authorId: socket.id,
       author: socket.data.username,
-    });
+    };
+
+    try {
+      await sendMessageToQueue(message);
+    } catch (error) {
+      console.error("Failed to send message to RabbitMQ", error);
+    }
   });
 });
 
 server.listen(PORT, () => console.log("Server running..."));
+
+connectRabbitMQ(io);
