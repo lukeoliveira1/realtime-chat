@@ -1,4 +1,4 @@
-import React, {useRef} from "react";
+import React, {useRef, useEffect} from "react";
 import io from 'socket.io-client'
 
 export default function Join({setSocket, setChatVisibility}) {
@@ -14,11 +14,26 @@ export default function Join({setSocket, setChatVisibility}) {
         setChatVisibility(true)
         setSocket(socket)
     }
+    
+    
+    const getEnterKey = (e) => {
+        if (e.key === 'Enter') {
+            handleSubmit()
+        }
+    }
+
+    const focusInput = () => {
+        usernameRef.current.focus()
+    }
+
+    useEffect(() => {
+        focusInput();
+      }, []);
 
     return (
         <div>
             <h1>Join</h1>
-            <input type="text" placeholder="Mensagem" ref={usernameRef}/>
+            <input type="text" placeholder="Mensagem" ref={usernameRef} onKeyDown={(e)=>getEnterKey(e)}/>
             <button onClick={()=>handleSubmit()}>Enviar</button>
         </div>
     )
