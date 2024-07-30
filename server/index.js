@@ -16,7 +16,7 @@ const io = socket(server, {
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Permite requisições do frontend
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   })
 );
@@ -36,15 +36,16 @@ io.on("connection", (socket) => {
     socket.data.username = username;
   });
 
-  socket.on("message", async (text) => {
-    const message = {
-      text,
+  socket.on("message", async (message) => {
+    const messageToSend = {
+      id: Date.now(),
+      text: message.text,
       authorId: socket.id,
-      author: socket.data.username,
+      author: socket.data.username || "Unknown",
     };
 
     try {
-      await sendMessageToQueue(message);
+      await sendMessageToQueue(messageToSend);
     } catch (error) {
       console.error("Failed to send message to RabbitMQ", error);
     }
