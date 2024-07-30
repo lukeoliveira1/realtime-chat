@@ -1,16 +1,28 @@
 const express = require("express");
 const http = require("http");
-const socketIo = require("socket.io");
+const socket = require("socket.io");
+const cors = require("cors");
 
 const { connectRabbitMQ, sendMessageToQueue } = require("./rabbitmq");
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, {
-  cors: { origin: "http://localhost:5173" },
+const io = socket(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
 });
 
-const PORT = 3001;
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Permite requisições do frontend
+    methods: ["GET", "POST"],
+  })
+);
+
+const SERVER_HOST = "localhost";
+const SERVER_PORT = 3001;
 
 // listening to front-end events (socket.io)
 io.on("connection", (socket) => {
@@ -39,6 +51,8 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(PORT, () => console.log("Server running..."));
+server.listen(SERVER_PORT, SERVER_HOST, () =>
+  console.log(`Server running at http://${SERVER_HOST}:${SERVER_PORT}`)
+);
 
 connectRabbitMQ(io);
