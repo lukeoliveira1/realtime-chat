@@ -1,10 +1,10 @@
 # Real-time Chat Application
 
-This is a real-time chat application built with React, Express, Socket.io, and RabbitMQ.
+This is a real-time chat application built with Next.js, Express, Socket.io, and RabbitMQ.
 
 ## Technologies Used
 
-- **React**: For building the user interface
+- **Next.js**: For building the user interface
 - **Express**: For handling the server-side logic
 - **Socket.io**: For real-time WebSocket communication
 - **RabbitMQ**: For message queuing and reliable communication
@@ -60,4 +60,4 @@ Follow the instructions on the [RabbitMQ website](https://www.rabbitmq.com/downl
     npm run dev
     ```
 
-4. Open your browser and navigate to `http://localhost:5173` to use the chat application.
+4. Open your browser and navigate to `http://localhost:3000` to use the chat application.
