@@ -1,44 +1,72 @@
 const express = require("express");
 const http = require("http");
-const socketIo = require("socket.io");
-
+const socket = require("socket.io");
+const cors = require("cors");
 const { connectRabbitMQ, sendMessageToQueue } = require("./rabbitmq");
+
+const users = {};
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, {
-  cors: { origin: "http://localhost:5173" },
+const io = socket(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
 });
 
-const PORT = 3001;
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  })
+);
+
+const SERVER_HOST = "localhost";
+const SERVER_PORT = 3001;
 
 // listening to front-end events (socket.io)
 io.on("connection", (socket) => {
   console.log("Usuário conectado!", socket.id);
 
-  socket.on("disconnect", (reason) => {
+  socket.on("set_username", (username) => {
+    users[socket.id] = username;
+    io.emit(
+      "user_list",
+      Object.keys(users).map((id) => ({ id, username: users[id] }))
+    );
+    socket.broadcast.emit("user_connected", { id: socket.id, username });
+    console.log(`Nome de usuário definido: ${username}`);
+  });
+
+  socket.on("disconnect", () => {
+    socket.broadcast.emit("user_disconnected", socket.id);
+    delete users[socket.id]; // Remove o usuário do registro
+    io.emit(
+      "user_list",
+      Object.keys(users).map((id) => ({ id, username: users[id] }))
+    );
     console.log("Usuário desconectado!", socket.id);
   });
 
-  socket.on("set_username", (username) => {
-    socket.data.username = username;
-  });
-
-  socket.on("message", async (text) => {
-    const message = {
-      text,
+  socket.on("message", async (message) => {
+    const messageToSend = {
+      id: Date.now(),
+      text: message.text,
       authorId: socket.id,
-      author: socket.data.username,
+      author: users[socket.id] || "Unknown",
     };
 
     try {
-      await sendMessageToQueue(message);
+      await sendMessageToQueue(messageToSend);
     } catch (error) {
       console.error("Failed to send message to RabbitMQ", error);
     }
   });
 });
 
-server.listen(PORT, () => console.log("Server running..."));
+server.listen(SERVER_PORT, SERVER_HOST, () =>
+  console.log(`Server running at http://${SERVER_HOST}:${SERVER_PORT}`)
+);
 
 connectRabbitMQ(io);
