@@ -1,29 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SendHorizonal } from "lucide-react";
-import { socket } from "@/socket";
+import { useChat } from "@/hook/useChat";
 
 interface InputMessageProps {
   placceholder?: string;
-  isInputMenssage: boolean;
 }
 
-export function InputMessage({
-  placceholder,
-  isInputMenssage,
-}: InputMessageProps) {
-  const [message, setMessage] = useState("");
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (message.trim()) {
-      socket.emit("message", message);
-    }
-    setMessage("");
-  };
+export function InputMessage({ placceholder }: InputMessageProps) {
+  const { message, setMessage, handleSubmit } = useChat();
 
   return (
     <form

@@ -1,14 +1,11 @@
 import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
-
+import { getInitial } from "@/lib/utils";
 interface ContactProfileProps {
   image?: string;
   username: string;
 }
 
 export function ContactProfile({ image, username }: ContactProfileProps) {
-  function getInitial(username: string): string {
-    return username.charAt(0).toUpperCase();
-  }
   return (
     <div className="flex items-center w-fit h-fit gap-2">
       <Avatar>

@@ -2,8 +2,9 @@ const express = require("express");
 const http = require("http");
 const socket = require("socket.io");
 const cors = require("cors");
-
 const { connectRabbitMQ, sendMessageToQueue } = require("./rabbitmq");
+
+const users = {};
 
 const app = express();
 const server = http.createServer(app);
@@ -28,12 +29,24 @@ const SERVER_PORT = 3001;
 io.on("connection", (socket) => {
   console.log("Usuário conectado!", socket.id);
 
-  socket.on("disconnect", (reason) => {
-    console.log("Usuário desconectado!", socket.id);
+  socket.on("set_username", (username) => {
+    users[socket.id] = username;
+    io.emit(
+      "user_list",
+      Object.keys(users).map((id) => ({ id, username: users[id] }))
+    );
+    socket.broadcast.emit("user_connected", { id: socket.id, username });
+    console.log(`Nome de usuário definido: ${username}`);
   });
 
-  socket.on("set_username", (username) => {
-    socket.data.username = username;
+  socket.on("disconnect", () => {
+    socket.broadcast.emit("user_disconnected", socket.id);
+    delete users[socket.id]; // Remove o usuário do registro
+    io.emit(
+      "user_list",
+      Object.keys(users).map((id) => ({ id, username: users[id] }))
+    );
+    console.log("Usuário desconectado!", socket.id);
   });
 
   socket.on("message", async (message) => {
@@ -41,7 +54,7 @@ io.on("connection", (socket) => {
       id: Date.now(),
       text: message.text,
       authorId: socket.id,
-      author: socket.data.username || "Unknown",
+      author: users[socket.id] || "Unknown",
     };
 
     try {
