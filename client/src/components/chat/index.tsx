@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { ContactProfile } from "../contact-profile";
 import { ChatOptions } from "./chat-options";
 import { InputMessage } from "./input-message";
@@ -8,9 +9,16 @@ import { useChat } from "@/hook/useChat";
 
 export function Chat() {
   const { users, username, messages } = useChat();
+  const router = useRouter();
+  const handleBackSubmit = () => {
+    router.push("/");
+  };
 
   return (
     <div className="flex flex-col justify-between w-[800px] h-[600px] border-2 border-primary rounded-lg">
+      <div className="flex justify-start m-5">
+        <button onClick={() => handleBackSubmit()}>Voltar</button>
+      </div>
       <div className="flex justify-between items-center p-8">
         <div className="flex flex-col items-start">
           {users.map((user) => (
