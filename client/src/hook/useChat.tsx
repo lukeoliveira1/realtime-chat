@@ -22,10 +22,9 @@ interface ChatContextType {
   handleUserSubmit: () => void;
   users: User[];
   nameRoomRef: React.RefObject<HTMLInputElement>;
-  handleRoomSubmit: () => void;
   rooms: string[];
   currentRoom: string | null;
-  joinRoom: (roomName: string) => void;
+  joinRoom: (roomName?: string) => void;
   leaveRoom: () => void;
 }
 
@@ -99,24 +98,22 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const handleRoomSubmit = () => {
-    const roomName = nameRoomRef.current?.value;
+  const joinRoom = (nameRoom?: string) => {
+    console.log('clique')
+    const roomName = nameRoom ? nameRoom : nameRoomRef.current?.value;
+    console.log('rooooom', roomName)
     if (roomName) {
-      socket.emit("create_room", roomName);
+      socket.emit("join_room", roomName);
       setCurrentRoom(roomName);
       router.push("/login");
     }
-  };
-
-  const joinRoom = (roomName: string) => {
-    socket.emit("join_room", roomName);
-    setCurrentRoom(roomName);
   };
 
   const leaveRoom = () => {
     if (currentRoom) {
       socket.emit("leave_room", currentRoom);
       setCurrentRoom(null);
+      router.push("/");
     }
   };
 
@@ -132,7 +129,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         handleUserSubmit,
         users,
         nameRoomRef,
-        handleRoomSubmit,
         rooms,
         currentRoom,
         joinRoom,

@@ -40,11 +40,19 @@ io.on("connection", (socket) => {
     console.log(`Nome de usuário definido: ${username}`);
   });
 
-  socket.on("create_room", (roomName) => {
+  socket.on("join_room", (roomName) => {
     if (!rooms[roomName]) {
       rooms[roomName] = { users: [] };
       io.emit("room_list", Object.keys(rooms));
       console.log(`Sala de chat criada: ${roomName}`);
+    } else {
+      socket.join(roomName);
+      rooms[roomName].users.push(socket.id);
+      io.to(roomName).emit(
+        "user_list",
+        rooms[roomName].users.map((id) => ({ id, username: users[id] }))
+      );
+      console.log(`Entrou na sala de chat: ${roomName}`);
     }
   });
 
@@ -64,12 +72,17 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
+    for (const roomName in rooms) {
+      rooms[roomName].users = rooms[roomName].users.filter(
+        (id) => id !== socket.id
+      );
+      io.to(roomName).emit(
+        "user_list",
+        rooms[roomName].users.map((id) => ({ id, username: users[id] }))
+      );
+    }
     socket.broadcast.emit("user_disconnected", socket.id);
-    delete users[socket.id]; // Remove o usuário do registro
-    io.emit(
-      "user_list",
-      Object.keys(users).map((id) => ({ id, username: users[id] }))
-    );
+    delete users[socket.id];
     console.log("Usuário desconectado!", socket.id);
   });
 

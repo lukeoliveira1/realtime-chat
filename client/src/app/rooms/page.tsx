@@ -5,7 +5,7 @@ import { Input } from "../../components/ui/input";
 import { useChat } from "@/hook/useChat";
 
 export function Rooms() {
-  const { rooms, nameRoomRef, handleRoomSubmit } = useChat();
+  const { rooms, nameRoomRef, joinRoom } = useChat();
 
   return (
     <main className="flex min-h-screen p-24 gap-6">
@@ -21,7 +21,7 @@ export function Rooms() {
           placeholder="Room"
           className="w-[300px] mb-10"
         />
-        <Button size={"lg"} onClick={handleRoomSubmit}>
+        <Button size={"lg"} onClick={() => joinRoom()}>
           Criar sala
         </Button>
       </div>
@@ -32,11 +32,20 @@ export function Rooms() {
           <p>Nenhuma sala disponível.</p>
         ) : (
           <div className="flex flex-col gap-2">
-            {rooms.map((room, index) => (
-              <Button key={index} className="w-[300px]">
-                {room}
-              </Button>
-            ))}
+            {rooms.map(
+              (room, index) => (
+                console.log(room),
+                (
+                  <Button
+                    key={index}
+                    className="w-[300px]"
+                    onClick={() => joinRoom(room)}
+                  >
+                    {room}
+                  </Button>
+                )
+              )
+            )}
           </div>
         )}
       </div>
