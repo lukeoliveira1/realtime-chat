@@ -18,12 +18,22 @@ export function MessageList({ messages, currentUser }: MessageListProps) {
               key={message.id}
               className={cn([
                 "mb-2 px-6 py-2 rounded-lg",
-                message.author === currentUser
+                message.author === "notification"
+                  ? "bg-blue-100 text-center mx-auto"
+                  : message.author === currentUser
                   ? "bg-green-400 text-right"
                   : "bg-gray-200 text-left",
+                "w-fit",
               ])}
+              style={
+                message.author === "notification"
+                  ? { width: "fit-content" }
+                  : {}
+              }
             >
-              <h1 className="font-bold">{message.author}</h1>
+              {message.author !== "notification" && (
+                <h1 className="font-bold">{message.author}</h1>
+              )}
               <p>{message.text}</p>
             </div>
           ))}

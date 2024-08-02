@@ -31,6 +31,7 @@ io.on("connection", (socket) => {
 
   socket.on("set_username", (username) => {
     users[socket.id] = username;
+    // Emite para todos os sockets conectados a lista atualizada de usuários
     io.emit(
       "user_list",
       Object.keys(users).map((id) => ({ id, username: users[id] }))
@@ -51,6 +52,8 @@ io.on("connection", (socket) => {
       "user_list",
       rooms[roomName].users.map((id) => ({ id, username: users[id] }))
     );
+    console.log('aaaaaaaaaaaaaaaa', users[socket.id])
+    socket.emit("room_joined", roomName, users[socket.id]);
     console.log(`Entrou na sala de chat: ${roomName}`);
   });
 
@@ -69,8 +72,8 @@ io.on("connection", (socket) => {
           rooms[roomName].users.map((id) => ({ id, username: users[id] }))
         );
       }
-      socket.emit("room_left", roomName);
-      console.log(`Usuário ${socket.id} saiu da sala ${roomName}`);
+      socket.emit("room_left", roomName, users[socket.id]);
+      console.log(`Usuário ${users[socket.id]} saiu da sala ${roomName}`);
     }
   });
 
