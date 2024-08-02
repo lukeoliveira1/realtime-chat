@@ -117,6 +117,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     if (currentRoom) {
       socket.emit("leave_room", currentRoom);
       setCurrentRoom(null);
+      setMessages([]);
       router.push("/");
     }
   };

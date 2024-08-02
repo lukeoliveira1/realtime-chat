@@ -6,19 +6,20 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { User } from "@/types/user";
 import { ContactProfile } from "../contact-profile";
+import { useChat } from "@/hook/useChat";
 
 interface ContactProfileProps {
   users: User[];
 }
 
 export function ChatOptions({ users }: ContactProfileProps) {
-  const router = useRouter();
+  const { leaveRoom } = useChat();
 
   return (
     <div className="flex justify-between items-center w-full">
       <Button
         onClick={() => {
-          router.push("/");
+          leaveRoom();
         }}
         variant={"ghost"}
         size={"icon"}
