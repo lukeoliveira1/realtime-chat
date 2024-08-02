@@ -16,26 +16,20 @@ import { Notifications } from "@/types/notification";
 interface ChatContextType {
   message: string;
   setMessage: React.Dispatch<React.SetStateAction<string>>;
-  handleSubmit: (event: React.FormEvent) => void;
+  handleMessageSubmit: (event: React.FormEvent) => void;
   messages: Message[];
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   username: string;
   usernameRef: React.RefObject<HTMLInputElement>;
-  userLoginNicknameSubmit: () => void;
+  handleUserLoginSubmit: () => void;
   users: User[];
   nameRoomRef: React.RefObject<HTMLInputElement>;
   rooms: string[];
   currentRoom: string | null;
-  createOrJoinRoom: (roomName?: string) => void;
-  leaveRoom: () => void;
+  handleCreateOrJoinRoom: (roomName?: string) => void;
+  handleLeaveRoom: () => void;
   notifications: Notifications[];
   setNotifications: React.Dispatch<React.SetStateAction<Notifications[]>>;
-}
-
-let notificationId = 0;
-
-function generateUniqueId(): number {
-  return ++notificationId;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -54,8 +48,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const nameRoomRef = useRef<HTMLInputElement>(null);
 
   const removeNotificationById = (id: number) => {
-    setNotifications(prevNotifications =>
-      prevNotifications.filter(notification => notification.id !== id)
+    setNotifications((prevNotifications) =>
+      prevNotifications.filter((notification) => notification.id !== id)
     );
   };
 
@@ -84,13 +78,13 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       setTimeout(() => removeNotificationById(notification.id), 5000);
     });
 
-    socket.on("room_joined", (roomName: string, username: string) => {
+    socket.on("room_joined", (roomName: string) => {
       setCurrentRoom(roomName);
       setMessages([]);
       socket.emit("user_list", roomName);
     });
 
-    socket.on("room_left", (roomName: string, username: string) => {
+    socket.on("room_left", (roomName: string) => {
       setCurrentRoom(null);
       setMessages([]);
       socket.emit("user_list", roomName);
@@ -117,7 +111,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [currentRoom]);
 
-  const createOrJoinRoom = (nameRoom?: string) => {
+  const handleCreateOrJoinRoom = (nameRoom?: string) => {
     const roomName = nameRoom ? nameRoom : nameRoomRef.current?.value;
     if (roomName) {
       setCurrentRoom(roomName);
@@ -125,7 +119,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const userLoginNicknameSubmit = () => {
+  const handleUserLoginSubmit = () => {
     const username = usernameRef.current?.value;
     if (username) {
       setUsername(username);
@@ -135,7 +129,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleMessageSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (message.trim() && username && currentRoom) {
       socket.emit("message", { text: message, roomName: currentRoom });
@@ -143,7 +137,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const leaveRoom = () => {
+  const handleLeaveRoom = () => {
     if (currentRoom) {
       socket.emit("leave_room", currentRoom);
       setCurrentRoom(null);
@@ -157,18 +151,18 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         message,
         setMessage,
-        handleSubmit,
+        handleMessageSubmit,
         messages,
         setMessages,
         username,
         usernameRef,
-        userLoginNicknameSubmit,
+        handleUserLoginSubmit,
         users,
         nameRoomRef,
         rooms,
         currentRoom,
-        createOrJoinRoom,
-        leaveRoom,
+        handleCreateOrJoinRoom,
+        handleLeaveRoom,
         notifications,
         setNotifications,
       }}

@@ -10,11 +10,11 @@ interface InputMessageProps {
 }
 
 export function InputMessage({ placceholder }: InputMessageProps) {
-  const { message, setMessage, handleSubmit } = useChat();
+  const { message, setMessage, handleMessageSubmit } = useChat();
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={handleMessageSubmit}
       className="flex justify-between items-center gap-4 px-8 py-4"
     >
       <Input

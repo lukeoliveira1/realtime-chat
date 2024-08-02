@@ -5,18 +5,20 @@ const QUEUE_NAME = "chat_messages";
 
 let channel;
 
+// Connect to RabbitMQ and set up the channel and queue
 const connectRabbitMQ = async (io) => {
   try {
     const connection = await amqp.connect(RABBITMQ_URL);
     channel = await connection.createChannel();
     await channel.assertQueue(QUEUE_NAME, { durable: true });
-    consumeMessages(io);
+    consumeMessages(io); // Start consuming messages from the queue
   } catch (error) {
     console.error("Failed to connect to RabbitMQ", error);
-    process.exit(1);
+    process.exit(1); // Exit the process if connection fails
   }
 };
 
+// Send a message to the RabbitMQ queue
 const sendMessageToQueue = async (message) => {
   if (!channel) {
     throw new Error("RabbitMQ channel is not initialized");
@@ -26,6 +28,7 @@ const sendMessageToQueue = async (message) => {
   }
 
   try {
+    // Send message to the queue and mark it as persistent
     const sent = channel.sendToQueue(
       QUEUE_NAME,
       Buffer.from(JSON.stringify(message)),
@@ -42,6 +45,7 @@ const sendMessageToQueue = async (message) => {
   }
 };
 
+// Consume messages from the RabbitMQ queue
 const consumeMessages = (io) => {
   if (!channel) {
     throw new Error("RabbitMQ channel is not initialized");
@@ -53,15 +57,15 @@ const consumeMessages = (io) => {
       if (msg !== null) {
         try {
           const message = JSON.parse(msg.content.toString());
-          io.emit("receive_message", message);
-          channel.ack(msg);
+          io.emit("receive_message", message); // Emit message to connected clients
+          channel.ack(msg); // Acknowledge message receipt
         } catch (error) {
           console.error("Failed to parse message:", error);
-          channel.ack(msg);
+          channel.ack(msg); // Acknowledge message receipt even if parsing fails
         }
       }
     },
-    { noAck: false }
+    { noAck: false } // Ensure messages are acknowledged manually
   );
 };
 

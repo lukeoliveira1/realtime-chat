@@ -13,13 +13,13 @@ interface ContactProfileProps {
 }
 
 export function ChatOptions({ users }: ContactProfileProps) {
-  const { leaveRoom } = useChat();
+  const { handleLeaveRoom } = useChat();
 
   return (
     <div className="flex justify-between items-center w-full">
       <Button
         onClick={() => {
-          leaveRoom();
+          handleLeaveRoom();
         }}
         variant={"ghost"}
         size={"icon"}
