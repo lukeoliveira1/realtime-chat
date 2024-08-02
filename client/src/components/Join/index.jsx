@@ -1,40 +1,26 @@
-import React, {useRef, useEffect} from "react";
+import React, {useRef} from 'react'
 import io from 'socket.io-client'
+import style from './Join.module.css'
+import {Input, Button} from '@mui/material'
 
-export default function Join({setSocket, setChatVisibility}) {
-    
-    const usernameRef = useRef()
+export default function Join({setChatVisibility, setSocket}) {
 
-    const handleSubmit = async () => {
-        const username = usernameRef.current.value
-        if (!username.trim()) return
+  const usernameRef = useRef()
 
-        const socket = await io.connect('http://localhost:3001')
-        socket.emit('set_username', username) // emitting event to backend
-        setChatVisibility(true)
-        setSocket(socket)
-    }
-    
-    
-    const getEnterKey = (e) => {
-        if (e.key === 'Enter') {
-            handleSubmit()
-        }
-    }
+  const handleSubmit = async () => {
+    const username = usernameRef.current.value
+    if(!username.trim()) return
+    const socket = await io.connect('http://localhost:3001')
+    socket.emit('set_username', username)
+    setSocket(socket)
+    setChatVisibility(true)
+  }
 
-    const focusInput = () => {
-        usernameRef.current.focus()
-    }
-
-    useEffect(() => {
-        focusInput();
-      }, []);
-
-    return (
-        <div>
-            <h1>Join</h1>
-            <input type="text" placeholder="Mensagem" ref={usernameRef} onKeyDown={(e)=>getEnterKey(e)}/>
-            <button onClick={()=>handleSubmit()}>Enviar</button>
-        </div>
-    )
+  return (
+    <div className={style['join-container']}>
+      <h2>Chat em tempo real</h2>
+      <Input inputRef={usernameRef} placeholder='Nome de usuário' />
+      <Button sx={{mt:2}} onClick={()=>handleSubmit()} variant="contained">Entrar</Button>
+    </div>
+  )
 }
