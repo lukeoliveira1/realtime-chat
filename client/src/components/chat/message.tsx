@@ -8,13 +8,20 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages, currentUser }: MessageListProps) {
+  // Filtrar mensagens e notificações
+  const notifications = messages.filter((msg) => msg.author === "notification") as Notifications[];
+  const chatMessages = messages.filter((msg) => msg.author !== "notification") as Message[];
+
+  // Combinar notificações e mensagens (notificações primeiro)
+  const sortedMessages = [...notifications, ...chatMessages];
+
   return (
     <div className="flex-1 overflow-auto p-4">
-      {messages.length === 0 ? (
+      {sortedMessages.length === 0 ? (
         <p className="text-center text-gray-500">No messages yet</p>
       ) : (
         <div>
-          {messages.map((message) => (
+          {sortedMessages.map((message) => (
             <div
               key={message.id}
               className={cn([
