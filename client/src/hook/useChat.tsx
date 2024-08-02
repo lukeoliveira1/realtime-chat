@@ -64,11 +64,16 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     socket.on("room_joined", (roomName: string) => {
       setCurrentRoom(roomName);
       setMessages([]);
+      socket.emit("get_user_list", roomName);
     });
 
     socket.on("room_left", () => {
       setCurrentRoom(null);
       setMessages([]);
+    });
+
+    socket.on("user_list", (userList: User[]) => {
+      setUsers(userList);
     });
 
     return () => {
@@ -78,6 +83,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off("room_list");
       socket.off("room_joined");
       socket.off("room_left");
+      socket.off("user_list");
     };
   }, [currentRoom]);
 
@@ -99,9 +105,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const joinRoom = (nameRoom?: string) => {
-    console.log('clique')
     const roomName = nameRoom ? nameRoom : nameRoomRef.current?.value;
-    console.log('rooooom', roomName)
     if (roomName) {
       socket.emit("join_room", roomName);
       setCurrentRoom(roomName);

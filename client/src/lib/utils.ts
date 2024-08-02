@@ -6,6 +6,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getInitial(username: string): string {
+  if (!username) {
+    return "";
+  }
+
   const words = username.trim().split(/\s+/);
   const initials = words.map((word) => word.charAt(0).toUpperCase());
   return initials.join("");

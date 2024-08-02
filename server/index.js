@@ -26,7 +26,6 @@ app.use(
 const SERVER_HOST = "localhost";
 const SERVER_PORT = 3001;
 
-// listening to front-end events (socket.io)
 io.on("connection", (socket) => {
   console.log("Usuário conectado!", socket.id);
 
@@ -45,15 +44,14 @@ io.on("connection", (socket) => {
       rooms[roomName] = { users: [] };
       io.emit("room_list", Object.keys(rooms));
       console.log(`Sala de chat criada: ${roomName}`);
-    } else {
-      socket.join(roomName);
-      rooms[roomName].users.push(socket.id);
-      io.to(roomName).emit(
-        "user_list",
-        rooms[roomName].users.map((id) => ({ id, username: users[id] }))
-      );
-      console.log(`Entrou na sala de chat: ${roomName}`);
     }
+    socket.join(roomName);
+    rooms[roomName].users.push(socket.id);
+    io.to(roomName).emit(
+      "user_list",
+      rooms[roomName].users.map((id) => ({ id, username: users[id] }))
+    );
+    console.log(`Entrou na sala de chat: ${roomName}`);
   });
 
   socket.on("leave_room", (roomName) => {
@@ -62,10 +60,15 @@ io.on("connection", (socket) => {
       rooms[roomName].users = rooms[roomName].users.filter(
         (id) => id !== socket.id
       );
-      io.to(roomName).emit(
-        "user_list",
-        rooms[roomName].users.map((id) => ({ id, username: users[id] }))
-      );
+      if (rooms[roomName].users.length === 0) {
+        delete rooms[roomName];
+        io.emit("room_list", Object.keys(rooms));
+      } else {
+        io.to(roomName).emit(
+          "user_list",
+          rooms[roomName].users.map((id) => ({ id, username: users[id] }))
+        );
+      }
       socket.emit("room_left", roomName);
       console.log(`Usuário ${socket.id} saiu da sala ${roomName}`);
     }
@@ -76,10 +79,15 @@ io.on("connection", (socket) => {
       rooms[roomName].users = rooms[roomName].users.filter(
         (id) => id !== socket.id
       );
-      io.to(roomName).emit(
-        "user_list",
-        rooms[roomName].users.map((id) => ({ id, username: users[id] }))
-      );
+      if (rooms[roomName].users.length === 0) {
+        delete rooms[roomName];
+        io.emit("room_list", Object.keys(rooms));
+      } else {
+        io.to(roomName).emit(
+          "user_list",
+          rooms[roomName].users.map((id) => ({ id, username: users[id] }))
+        );
+      }
     }
     socket.broadcast.emit("user_disconnected", socket.id);
     delete users[socket.id];
