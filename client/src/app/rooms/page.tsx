@@ -5,7 +5,7 @@ import { Input } from "../../components/ui/input";
 import { useChat } from "@/hook/useChat";
 
 export function Rooms() {
-  const { rooms, nameRoomRef, joinRoom } = useChat();
+  const { rooms, nameRoomRef, createOrJoinRoom } = useChat();
 
   return (
     <main className="flex justify-between items-center w-fit max-h-screen gap-16">
@@ -21,7 +21,7 @@ export function Rooms() {
           placeholder="Nome da sala"
           className="w-[300px] "
         />
-        <Button size={"lg"} onClick={() => joinRoom()}>
+        <Button size={"lg"} onClick={() => createOrJoinRoom()}>
           Criar sala
         </Button>
       </div>
@@ -38,7 +38,7 @@ export function Rooms() {
               <Button
                 key={index}
                 className="w-[300px]"
-                onClick={() => joinRoom(room)}
+                onClick={() => createOrJoinRoom(room)}
               >
                 {room}
               </Button>

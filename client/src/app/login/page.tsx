@@ -5,7 +5,7 @@ import { Input } from "../../components/ui/input";
 import { useChat } from "@/hook/useChat";
 
 export default function Login() {
-  const { usernameRef, handleUserSubmit } = useChat();
+  const { usernameRef, userLoginNicknameSubmit } = useChat();
 
   return (
     <main className="flex flex-col justify-center items-center w-full h-screen p-8 gap-6">
@@ -16,7 +16,7 @@ export default function Login() {
         placeholder="Username"
         className="w-[300px]"
       />
-      <Button size={"lg"} onClick={handleUserSubmit}>
+      <Button size={"lg"} onClick={userLoginNicknameSubmit}>
         Entrar
       </Button>
     </main>

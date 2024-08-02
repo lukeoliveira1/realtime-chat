@@ -1,8 +1,9 @@
 import { cn } from "@/lib/utils";
 import { Message } from "@/types/message";
+import { Notifications } from "@/types/notification";
 
 interface MessageListProps {
-  messages: Message[];
+  messages: Message[] | Notifications[];
   currentUser: string;
 }
 

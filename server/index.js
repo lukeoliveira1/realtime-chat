@@ -38,25 +38,29 @@ io.on("connection", (socket) => {
     );
     socket.broadcast.emit("user_connected", { id: socket.id, username });
     console.log(`Nome de usuário definido: ${username}`);
+    // Emitindo um evento de confirmação
+    socket.emit("username_set", username);
   });
 
   socket.on("join_room", (roomName) => {
+    if (!users[socket.id]) {
+      socket.emit("error", "Nome de usuário não definido.");
+      return;
+    }
+    
     if (!rooms[roomName]) {
       rooms[roomName] = { users: [] };
       io.emit("room_list", Object.keys(rooms));
       console.log(`Sala de chat criada: ${roomName}`);
     }
+    
     socket.join(roomName);
     rooms[roomName].users.push(socket.id);
-    io.to(roomName).emit(
-      "user_list",
-      rooms[roomName].users.map((id) => ({ id, username: users[id] }))
-    );
-    console.log('aaaaaaaaaaaaaaaa', users[socket.id])
+    io.to(roomName).emit("user_list", rooms[roomName].users.map((id) => ({ id, username: users[id] })));
     socket.emit("room_joined", roomName, users[socket.id]);
     console.log(`Entrou na sala de chat: ${roomName}`);
   });
-
+  
   socket.on("leave_room", (roomName) => {
     if (rooms[roomName]) {
       socket.leave(roomName);

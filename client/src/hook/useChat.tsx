@@ -21,15 +21,15 @@ interface ChatContextType {
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   username: string;
   usernameRef: React.RefObject<HTMLInputElement>;
-  handleUserSubmit: () => void;
+  userLoginNicknameSubmit: () => void;
   users: User[];
   nameRoomRef: React.RefObject<HTMLInputElement>;
   rooms: string[];
   currentRoom: string | null;
-  joinRoom: (roomName?: string) => void;
+  createOrJoinRoom: (roomName?: string) => void;
   leaveRoom: () => void;
   notifications: Notifications[];
-  setNotifications: React.Dispatch<React.SetStateAction<Notifications[]>>; 
+  setNotifications: React.Dispatch<React.SetStateAction<Notifications[]>>;
 }
 
 let notificationId = 0;
@@ -52,7 +52,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
   const usernameRef = useRef<HTMLInputElement>(null);
   const nameRoomRef = useRef<HTMLInputElement>(null);
-  
+
   useEffect(() => {
     socket.on("receive_message", (message: Message) => {
       if (message.roomName === currentRoom) {
@@ -81,12 +81,12 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         {
           id: generateUniqueId(),
           text: `${username} entrou na sala ${roomName}`,
-          author: username,
+          author: "notification",
           roomName: roomName,
-        } as Notifications, // Cast as Notifications
+        } as Notifications,
       ]);
     });
-    
+
     socket.on("room_left", (roomName: string, username: string) => {
       setCurrentRoom(null);
       setMessages([]);
@@ -96,14 +96,18 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         {
           id: generateUniqueId(),
           text: `${username} saiu da sala ${roomName}`,
-          author: username,
+          author: "notification",
           roomName: roomName,
-        } as Notifications, // Cast as Notifications
+        } as Notifications,
       ]);
     });
 
     socket.on("user_list", (userList: User[]) => {
       setUsers(userList);
+    });
+
+    socket.on("error", (message: string) => {
+      console.error(message);
     });
 
     return () => {
@@ -114,14 +118,24 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off("room_joined");
       socket.off("room_left");
       socket.off("user_list");
+      socket.off("error");
     };
   }, [currentRoom]);
 
-  const handleUserSubmit = () => {
+  const createOrJoinRoom = (nameRoom?: string) => {
+    const roomName = nameRoom ? nameRoom : nameRoomRef.current?.value;
+    if (roomName) {
+      setCurrentRoom(roomName);
+      router.push("/login");
+    }
+  };
+
+  const userLoginNicknameSubmit = () => {
     const username = usernameRef.current?.value;
     if (username) {
       setUsername(username);
       socket.emit("set_username", username);
+      socket.emit("join_room", currentRoom);
       router.push("/chat");
     }
   };
@@ -131,15 +145,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     if (message.trim() && username && currentRoom) {
       socket.emit("message", { text: message, roomName: currentRoom });
       setMessage("");
-    }
-  };
-
-  const joinRoom = (nameRoom?: string) => {
-    const roomName = nameRoom ? nameRoom : nameRoomRef.current?.value;
-    if (roomName) {
-      socket.emit("join_room", roomName);
-      setCurrentRoom(roomName);
-      router.push("/login");
     }
   };
 
@@ -162,12 +167,12 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         setMessages,
         username,
         usernameRef,
-        handleUserSubmit,
+        userLoginNicknameSubmit,
         users,
         nameRoomRef,
         rooms,
         currentRoom,
-        joinRoom,
+        createOrJoinRoom,
         leaveRoom,
         notifications,
         setNotifications,
