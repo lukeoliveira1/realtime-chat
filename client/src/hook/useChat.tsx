@@ -53,6 +53,12 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const usernameRef = useRef<HTMLInputElement>(null);
   const nameRoomRef = useRef<HTMLInputElement>(null);
 
+  const removeNotificationById = (id: number) => {
+    setNotifications(prevNotifications =>
+      prevNotifications.filter(notification => notification.id !== id)
+    );
+  };
+
   useEffect(() => {
     socket.on("receive_message", (message: Message) => {
       if (message.roomName === currentRoom) {
@@ -72,34 +78,22 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       setRooms(roomList);
     });
 
+    socket.on("notification", (notification: Notifications) => {
+      setNotifications((prev) => [...prev, notification]);
+
+      setTimeout(() => removeNotificationById(notification.id), 5000);
+    });
+
     socket.on("room_joined", (roomName: string, username: string) => {
       setCurrentRoom(roomName);
       setMessages([]);
       socket.emit("user_list", roomName);
-      setNotifications((prevNotifications) => [
-        ...prevNotifications,
-        {
-          id: generateUniqueId(),
-          text: `${username} entrou na sala ${roomName}`,
-          author: "notification",
-          roomName: roomName,
-        } as Notifications,
-      ]);
     });
 
     socket.on("room_left", (roomName: string, username: string) => {
       setCurrentRoom(null);
       setMessages([]);
       socket.emit("user_list", roomName);
-      setNotifications((prevNotifications) => [
-        ...prevNotifications,
-        {
-          id: generateUniqueId(),
-          text: `${username} saiu da sala ${roomName}`,
-          author: "notification",
-          roomName: roomName,
-        } as Notifications,
-      ]);
     });
 
     socket.on("user_list", (userList: User[]) => {
@@ -117,6 +111,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off("room_list");
       socket.off("room_joined");
       socket.off("room_left");
+      socket.off("notification");
       socket.off("user_list");
       socket.off("error");
     };

@@ -26,6 +26,12 @@ app.use(
 const SERVER_HOST = "localhost";
 const SERVER_PORT = 3001;
 
+let notificationId = 0;
+
+function generateUniqueId() {
+  return ++notificationId;
+}
+
 io.on("connection", (socket) => {
   console.log("Usuário conectado!", socket.id);
 
@@ -47,20 +53,39 @@ io.on("connection", (socket) => {
       socket.emit("error", "Nome de usuário não definido.");
       return;
     }
-    
+
     if (!rooms[roomName]) {
       rooms[roomName] = { users: [] };
       io.emit("room_list", Object.keys(rooms));
       console.log(`Sala de chat criada: ${roomName}`);
     }
-    
+
     socket.join(roomName);
     rooms[roomName].users.push(socket.id);
-    io.to(roomName).emit("user_list", rooms[roomName].users.map((id) => ({ id, username: users[id] })));
+    io.to(roomName).emit(
+      "user_list",
+      rooms[roomName].users.map((id) => ({ id, username: users[id] }))
+    );
     socket.emit("room_joined", roomName, users[socket.id]);
+
+    // Notifique todos os usuários na sala sobre a nova entrada
+    socket.to(roomName).emit("notification", {
+      text: `${users[socket.id]} entrou na sala...`,
+      author: "notification",
+      roomName: roomName,
+    });
+
+    // Notifique o próprio usuário sobre a entrada
+    socket.emit("notification", {
+      id: generateUniqueId(),
+      text: `Você entrou na sala ${roomName}`,
+      author: "notification",
+      roomName: roomName,
+    });
+
     console.log(`Entrou na sala de chat: ${roomName}`);
   });
-  
+
   socket.on("leave_room", (roomName) => {
     if (rooms[roomName]) {
       socket.leave(roomName);
@@ -76,6 +101,22 @@ io.on("connection", (socket) => {
           rooms[roomName].users.map((id) => ({ id, username: users[id] }))
         );
       }
+
+      // Notifique todos os usuários na sala sobre a nova entrada
+      socket.to(roomName).emit("notification", {
+        text: `${users[socket.id]} saiu da sala...`,
+        author: "notification",
+        roomName: roomName,
+      });
+
+      // Notifique o próprio usuário sobre a entrada
+      socket.emit("notification", {
+        id: generateUniqueId(),
+        text: `Você saiu da sala ${roomName}`,
+        author: "notification",
+        roomName: roomName,
+      });
+
       socket.emit("room_left", roomName, users[socket.id]);
       console.log(`Usuário ${users[socket.id]} saiu da sala ${roomName}`);
     }
