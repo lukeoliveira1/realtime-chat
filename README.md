@@ -1,13 +1,13 @@
 # Real-time Chat Application
 
-This is a real-time chat application built with Next.js, Express, Socket.io, and RabbitMQ.
+This is a real-time chat application built with Next.js, Express, Socket.io, and Redis.
 
 ## Technologies Used
 
 - **Next.js**: For building the user interface
 - **Express**: For handling the server-side logic
 - **Socket.io**: For real-time WebSocket communication
-- **RabbitMQ**: For message queuing and reliable communication
+- **Redis**: For message queuing and reliable communication
 
 ## Installation
 
@@ -17,11 +17,11 @@ Make sure you have the following installed on your machine:
 
 - Node.js
 - npm (or yarn)
-- RabbitMQ
+- Redis
 
-### RabbitMQ Installation
+### Redis Installation
 
-Follow the instructions on the [RabbitMQ website](https://www.rabbitmq.com/download.html) to install RabbitMQ on your machine.
+Follow the instructions on the [Redis website](https://redis.io/download) to install Redis on your machine.
 
 ### Setting Up the Project
 
@@ -46,17 +46,23 @@ Follow the instructions on the [RabbitMQ website](https://www.rabbitmq.com/downl
 
 ## Usage
 
-1. Start RabbitMQ server
+1. Start Redis server:
+
+    ```bash
+    redis-server
+    ```
 
 2. Start the server:
 
     ```bash
+    cd ./server
     npm run dev
     ```
 
 3. Start the client:
 
     ```bash
+    cd ./client
     npm run dev
     ```
 

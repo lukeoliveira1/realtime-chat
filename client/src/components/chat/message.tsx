@@ -23,18 +23,18 @@ export function MessageList({ messages, currentUser }: MessageListProps) {
       {sortedMessages.length === 0 ? (
         <p className="text-center text-gray-500">Nenhuma mensagem ainda...</p>
       ) : (
-        <div>
+        <div className="flex flex-col">
           {sortedMessages.map((message) => (
             <div
               key={message.id}
               className={cn([
-                "mb-2 px-6 py-2 rounded-lg",
+                "mb-2 px-6 py-3 rounded-lg",
                 message.author === "notification"
                   ? "bg-blue-100 text-center mx-auto"
                   : message.author === currentUser
-                  ? "bg-green-400 text-right"
-                  : "bg-gray-200 text-left",
-                "w-fit",
+                  ? "bg-green-400 text-right self-end"
+                  : "bg-gray-200 text-left self-start",
+                "max-w-md",
               ])}
               style={
                 message.author === "notification"

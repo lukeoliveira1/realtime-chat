@@ -55,6 +55,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     socket.on("receive_message", (message: Message) => {
+      console.log("Message received:", message);
       if (message.roomName === currentRoom) {
         setMessages((prevMessages) => [...prevMessages, message]);
       }
