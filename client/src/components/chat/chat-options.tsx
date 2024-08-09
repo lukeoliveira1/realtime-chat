@@ -7,6 +7,7 @@ import { ChevronLeft } from "lucide-react";
 import { User } from "@/types/user";
 import { ContactProfile } from "../contact-profile";
 import { useChat } from "@/hook/useChat";
+import React from "react";
 
 interface ContactProfileProps {
   users: User[];
@@ -28,9 +29,12 @@ export function ChatOptions({ users }: ContactProfileProps) {
         <ChevronLeft size={24} />
       </Button>
 
-      <div className="flex flex-col items-start">
-        {users.map((user) => (
-          <ContactProfile key={user.id} username={user.username} />
+      <div className="flex items-start justify-between">
+        {users.map((user, index) => (
+          <React.Fragment key={user.id}>
+            <ContactProfile username={user.username} />
+            {index < users.length - 1 && <span>, </span>}
+          </React.Fragment>
         ))}
       </div>
 

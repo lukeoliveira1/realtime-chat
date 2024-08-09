@@ -10,7 +10,6 @@ export function ContactProfile({ image, username }: ContactProfileProps) {
     <div className="flex items-center w-fit h-fit gap-2">
       <Avatar>
         <AvatarImage src={""} alt="Imagem perfil" />
-        <AvatarFallback>{getInitial(username)}</AvatarFallback>
       </Avatar>
 
       <h1 className="font-semibold">{username}</h1>

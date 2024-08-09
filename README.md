@@ -27,43 +27,43 @@ Follow the instructions on the [Redis website](https://redis.io/download) to ins
 
 1. Clone the repository:
 
-    ```bash
-    git clone https://github.com/yourusername/realtime-chat.git
-    cd realtime-chat
-    ```
+   ```bash
+   git clone https://github.com/yourusername/realtime-chat.git
+   cd realtime-chat
+   ```
 
 2. Install dependencies for both the server and the client:
 
-    ```bash
-    # For the server
-    cd ./server
-    npm install
+   ```bash
+   # For the server
+   cd ./server
+   npm install
 
-    # For the client
-    cd ./client
-    npm install
-    ```
+   # For the client
+   cd ./client
+   npm install
+   ```
 
 ## Usage
 
 1. Start Redis server:
 
-    ```bash
-    redis-server
-    ```
+   ```bash
+   sudo service redis-server start
+   ```
 
 2. Start the server:
 
-    ```bash
-    cd ./server
-    npm run dev
-    ```
+   ```bash
+   cd ./server
+   npm run dev
+   ```
 
 3. Start the client:
 
-    ```bash
-    cd ./client
-    npm run dev
-    ```
+   ```bash
+   cd ./client
+   npm run dev
+   ```
 
 4. Open your browser and navigate to `http://localhost:3000` to use the chat application.

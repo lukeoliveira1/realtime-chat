@@ -1,14 +1,14 @@
 "use client";
 
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { useChat } from "@/hook/useChat";
 
 export function Rooms() {
   const { rooms, nameRoomRef, handleCreateOrJoinRoom } = useChat();
 
   return (
-    <main className="flex justify-between items-center w-fit max-h-screen gap-16">
+    <main className="flex justify-between items-center w-fit h-screen gap-16">
       <div className="flex flex-col justify-center items-center gap-6">
         <h1 className="text-4xl font-medium text-center">
           Bem-vindo ao nosso chat!
